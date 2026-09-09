@@ -54,7 +54,7 @@ export function AuthProvider({ children }) {
     localStorage.removeItem(USER_KEY);
     setToken(null);
     setUser(null);
-    window.location.href = '/admin';
+    window.location.hash = '/admin';
   };
 
   return (

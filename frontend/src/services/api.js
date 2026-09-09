@@ -24,11 +24,11 @@ api.interceptors.response.use(
   (response) => response,
   (error) => {
     if (error.response && error.response.status === 401) {
-      // If unauthorized on admin endpoint, clear stale token
-      if (window.location.pathname.startsWith('/admin') && window.location.pathname !== '/admin') {
+      // If unauthorized on admin endpoint, clear stale token and redirect to admin login
+      if (window.location.hash.startsWith('#/admin') && window.location.hash !== '#/admin') {
         localStorage.removeItem('carry_admin_token');
         localStorage.removeItem('carry_admin_user');
-        window.location.href = '/admin';
+        window.location.hash = '/admin';
       }
     }
     return Promise.reject(error);
