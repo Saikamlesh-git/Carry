@@ -124,13 +124,13 @@ export default function OrderDetailModal({ isOpen, onClose, order, onStatusUpdat
                 </span>
               </div>
 
-              <div className="flex items-center gap-2">
+              <div className="flex flex-wrap items-center gap-1.5 sm:gap-2">
                 {STATUS_OPTIONS.map((st) => (
                   <button
                     key={st}
                     disabled={updating}
                     onClick={() => handleStatusChange(st)}
-                    className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${
+                    className={`flex-1 sm:flex-initial text-center px-2.5 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${
                       currentStatus === st
                         ? 'bg-emerald-700 text-white shadow-sm'
                         : 'bg-white text-slate-700 hover:bg-emerald-100/50 border border-slate-200'

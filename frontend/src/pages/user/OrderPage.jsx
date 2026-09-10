@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useMemo } from 'react';
-import { Search, X, ShoppingBag, AlertCircle } from 'lucide-react';
+import { Search, X, ShoppingBag, AlertCircle, RefreshCw } from 'lucide-react';
 import Header from '../../components/common/Header';
 import HotelWelcome from '../../components/user/HotelWelcome';
 import CategoryTabs from '../../components/user/CategoryTabs';
@@ -16,32 +16,57 @@ export default function OrderPage() {
   const [categories, setCategories] = useState([]);
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
   const [selectedCategoryId, setSelectedCategoryId] = useState(null);
   const [searchQuery, setSearchQuery] = useState('');
   const [settings, setSettings] = useState({ whatsapp_number: '+919876543210' });
   const [isHotelModalOpen, setIsHotelModalOpen] = useState(false);
 
-  // Load public categories, products, and settings
+  // Fetch live products, categories, and settings from the server
+  const fetchData = async (isManual = false) => {
+    try {
+      if (isManual) setRefreshing(true);
+      const [catRes, prodRes, setRes] = await Promise.all([
+        api.get('/categories'),
+        api.get('/products'),
+        api.get('/settings/public'),
+      ]);
+      setCategories(catRes.data);
+      setProducts(prodRes.data);
+      setSettings(setRes.data);
+    } catch (err) {
+      console.error('Error loading storefront data:', err);
+    } finally {
+      setLoading(false);
+      if (isManual) setRefreshing(false);
+    }
+  };
+
   useEffect(() => {
-    const fetchData = async () => {
-      try {
-        setLoading(true);
-        const [catRes, prodRes, setRes] = await Promise.all([
-          api.get('/categories'),
-          api.get('/products'),
-          api.get('/settings/public'),
-        ]);
-        setCategories(catRes.data);
-        setProducts(prodRes.data);
-        setSettings(setRes.data);
-      } catch (err) {
-        console.error('Error loading storefront data:', err);
-      } finally {
-        setLoading(false);
+    // Initial fetch
+    fetchData();
+
+    // Auto-sync when user switches back to this tab/app on any device
+    const handleVisibilityOrFocus = () => {
+      if (document.visibilityState === 'visible') {
+        fetchData();
       }
     };
+    document.addEventListener('visibilitychange', handleVisibilityOrFocus);
+    window.addEventListener('focus', handleVisibilityOrFocus);
 
-    fetchData();
+    // Periodic live sync every 25 seconds across devices
+    const intervalId = setInterval(() => {
+      if (document.visibilityState === 'visible') {
+        fetchData();
+      }
+    }, 25000);
+
+    return () => {
+      document.removeEventListener('visibilitychange', handleVisibilityOrFocus);
+      window.removeEventListener('focus', handleVisibilityOrFocus);
+      clearInterval(intervalId);
+    };
   }, []);
 
   // Filter products based on category and search query
@@ -96,13 +121,25 @@ export default function OrderPage() {
             )}
           </div>
 
-          <div className="flex items-center gap-2 text-xs font-semibold text-slate-500">
-            <span>Showing {filteredProducts.length} items</span>
-            {searchQuery && (
-              <span className="text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-md border border-emerald-200">
-                "{searchQuery}"
-              </span>
-            )}
+          <div className="flex items-center justify-between sm:justify-end gap-3 text-xs font-semibold text-slate-500 w-full md:w-auto">
+            <div className="flex items-center gap-2">
+              <span>Showing {filteredProducts.length} items</span>
+              {searchQuery && (
+                <span className="text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-md border border-emerald-200">
+                  "{searchQuery}"
+                </span>
+              )}
+            </div>
+
+            <button
+              onClick={() => fetchData(true)}
+              disabled={refreshing}
+              title="Refresh Products"
+              className="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold transition-all active:scale-95 cursor-pointer disabled:opacity-50"
+            >
+              <RefreshCw className={`w-3.5 h-3.5 ${refreshing ? 'animate-spin text-emerald-600' : 'text-slate-500'}`} />
+              <span className="hidden xs:inline">Sync</span>
+            </button>
           </div>
         </div>
       </div>

@@ -4,12 +4,20 @@ const api = axios.create({
   baseURL: import.meta.env.VITE_API_URL || 'https://carry-mv1m.onrender.com/api',
   headers: {
     'Content-Type': 'application/json',
+    'Cache-Control': 'no-cache, no-store, must-revalidate',
+    'Pragma': 'no-cache',
+    'Expires': '0',
   },
 });
 
-// Attach Authorization header for admin requests if token exists
+// Attach Authorization header for admin requests and add cache-buster on GET requests
 api.interceptors.request.use(
   (config) => {
+    // Bust browser/device caching on GET requests
+    if (config.method === 'get') {
+      config.params = { ...config.params, _t: Date.now() };
+    }
+
     const token = localStorage.getItem('carry_admin_token');
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;

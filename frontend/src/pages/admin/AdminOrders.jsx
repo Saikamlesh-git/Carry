@@ -214,124 +214,206 @@ export default function AdminOrders() {
         </div>
       </div>
 
-      {/* Orders Table */}
-      <div className="bg-white rounded-3xl border border-slate-200 shadow-xs overflow-hidden">
-        <div className="overflow-x-auto">
-          <table className="w-full text-left border-collapse">
-            <thead>
-              <tr className="bg-slate-50/70 text-[11px] font-bold text-slate-500 uppercase tracking-wider border-b border-slate-200/80">
-                <th className="px-6 py-3.5">Order ID</th>
-                <th className="px-6 py-3.5">Hotel Name</th>
-                <th className="px-6 py-3.5">Date</th>
-                <th className="px-6 py-3.5">Items</th>
-                <th className="px-6 py-3.5">Total Amount</th>
-                <th className="px-6 py-3.5">Status</th>
-                <th className="px-6 py-3.5 text-right">Actions</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-slate-100 text-sm">
-              {loading ? (
-                <tr>
-                  <td colSpan="7" className="px-6 py-10 text-center text-slate-400">
-                    Loading orders...
-                  </td>
-                </tr>
-              ) : filteredOrders.length === 0 ? (
-                <tr>
-                  <td colSpan="7" className="px-6 py-12 text-center text-slate-500">
-                    <ShoppingBag className="w-8 h-8 text-slate-300 mx-auto mb-2 stroke-[1.5]" />
-                    <p className="font-bold">No orders found</p>
-                    <p className="text-xs text-slate-400 mt-0.5">
-                      No matching records found for this filter criteria.
-                    </p>
-                  </td>
-                </tr>
-              ) : (
-                filteredOrders.map((ord) => {
-                  const d = new Date(ord.created_at);
-                  const formattedDate = d.toLocaleDateString('en-GB', {
-                    day: '2-digit',
-                    month: 'short',
-                    year: 'numeric',
-                  });
-                  const formattedTime = d.toLocaleTimeString('en-US', {
-                    hour: 'numeric',
-                    minute: '2-digit',
-                    hour12: true,
-                  });
-
-                  return (
-                    <tr key={ord.id} className="hover:bg-slate-50/70 transition-colors">
-                      <td className="px-6 py-4 font-mono font-bold text-emerald-700">
-                        {ord.order_number}
-                      </td>
-
-                      <td className="px-6 py-4 font-bold text-slate-900">
-                        {ord.hotel_name}
-                      </td>
-
-                      <td className="px-6 py-4 text-xs text-slate-600">
-                        <span className="font-semibold block">{formattedDate}</span>
-                        <span className="text-slate-400">{formattedTime}</span>
-                      </td>
-
-                      <td className="px-6 py-4">
-                        <span className="px-2.5 py-1 text-xs font-bold rounded-lg bg-slate-100 text-slate-700">
-                          {ord.item_count} items
-                        </span>
-                      </td>
-
-                      <td className="px-6 py-4 font-extrabold text-slate-950">
-                        {formatCurrency(ord.total_amount)}
-                      </td>
-
-                      <td className="px-6 py-4">
-                        <span
-                          className={`px-2.5 py-1 text-xs font-bold rounded-full ${
-                            ord.status === 'New'
-                              ? 'bg-amber-100 text-amber-800'
-                              : ord.status === 'Processing'
-                              ? 'bg-sky-100 text-sky-800'
-                              : ord.status === 'Completed'
-                              ? 'bg-emerald-100 text-emerald-800'
-                              : 'bg-rose-100 text-rose-800'
-                          }`}
-                        >
-                          {ord.status}
-                        </span>
-                      </td>
-
-                      <td className="px-6 py-4 text-right">
-                        <div className="inline-flex items-center gap-1.5">
-                          <button
-                            onClick={() => handleViewOrder(ord.id)}
-                            disabled={selectedOrderLoading}
-                            className="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-xs font-bold text-slate-700 bg-slate-100 hover:bg-slate-200 transition-colors cursor-pointer"
-                            title="View Order Details"
-                          >
-                            <Eye className="w-3.5 h-3.5" />
-                            <span>View</span>
-                          </button>
-                          <button
-                            onClick={() => {
-                              setOrderToDelete(ord);
-                              setDeleteDialogOpen(true);
-                            }}
-                            className="inline-flex items-center justify-center p-1.5 rounded-lg text-xs font-bold text-rose-600 hover:bg-rose-50 border border-rose-200 transition-colors cursor-pointer"
-                            title="Delete Order Data"
-                          >
-                            <Trash2 className="w-3.5 h-3.5" />
-                          </button>
-                        </div>
-                      </td>
-                    </tr>
-                  );
-                })
-              )}
-            </tbody>
-          </table>
+      {/* Orders Display (Mobile Cards + Desktop Table) */}
+      {loading ? (
+        <div className="bg-white rounded-3xl border border-slate-200 p-8 text-center text-slate-400">
+          Loading orders...
         </div>
-      </div>
+      ) : filteredOrders.length === 0 ? (
+        <div className="bg-white rounded-3xl border border-slate-200 p-8 sm:p-12 text-center text-slate-500">
+          <ShoppingBag className="w-8 h-8 text-slate-300 mx-auto mb-2 stroke-[1.5]" />
+          <p className="font-bold">No orders found</p>
+          <p className="text-xs text-slate-400 mt-0.5">
+            No matching records found for this filter criteria.
+          </p>
+        </div>
+      ) : (
+        <>
+          {/* Mobile Order Cards (< md) */}
+          <div className="md:hidden space-y-3">
+            {filteredOrders.map((ord) => {
+              const d = new Date(ord.created_at);
+              const formattedDate = d.toLocaleDateString('en-GB', {
+                day: '2-digit',
+                month: 'short',
+                year: 'numeric',
+              });
+              const formattedTime = d.toLocaleTimeString('en-US', {
+                hour: 'numeric',
+                minute: '2-digit',
+                hour12: true,
+              });
+
+              return (
+                <div
+                  key={ord.id}
+                  className="bg-white rounded-2xl p-4 border border-slate-200 shadow-xs space-y-3"
+                >
+                  <div className="flex items-center justify-between">
+                    <span className="font-mono text-xs font-black text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-lg border border-emerald-200">
+                      {ord.order_number}
+                    </span>
+                    <span
+                      className={`px-2.5 py-0.5 text-xs font-bold rounded-full ${
+                        ord.status === 'New'
+                          ? 'bg-amber-100 text-amber-800'
+                          : ord.status === 'Processing'
+                          ? 'bg-sky-100 text-sky-800'
+                          : ord.status === 'Completed'
+                          ? 'bg-emerald-100 text-emerald-800'
+                          : 'bg-rose-100 text-rose-800'
+                      }`}
+                    >
+                      {ord.status}
+                    </span>
+                  </div>
+
+                  <div>
+                    <h4 className="font-black text-slate-900 text-base">
+                      {ord.hotel_name}
+                    </h4>
+                    <div className="text-xs text-slate-500 font-medium mt-0.5">
+                      {formattedDate} • {formattedTime}
+                    </div>
+                  </div>
+
+                  <div className="flex items-center justify-between pt-2 border-t border-slate-100">
+                    <div>
+                      <span className="text-base font-black text-slate-900">
+                        {formatCurrency(ord.total_amount)}
+                      </span>
+                      <span className="text-xs text-slate-500 font-bold ml-1.5 bg-slate-100 px-2 py-0.5 rounded-md">
+                        {ord.item_count} items
+                      </span>
+                    </div>
+
+                    <div className="flex items-center gap-2">
+                      <button
+                        onClick={() => handleViewOrder(ord.id)}
+                        disabled={selectedOrderLoading}
+                        className="inline-flex items-center gap-1 px-3 py-1.5 rounded-xl bg-slate-900 hover:bg-slate-800 text-white text-xs font-bold transition-colors cursor-pointer"
+                      >
+                        <Eye className="w-3.5 h-3.5" />
+                        <span>View</span>
+                      </button>
+                      <button
+                        onClick={() => {
+                          setOrderToDelete(ord);
+                          setDeleteDialogOpen(true);
+                        }}
+                        className="inline-flex items-center justify-center p-1.5 rounded-xl text-rose-600 hover:bg-rose-50 border border-rose-200 transition-colors cursor-pointer"
+                      >
+                        <Trash2 className="w-3.5 h-3.5" />
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+
+          {/* Desktop Table View (Hidden on mobile < md) */}
+          <div className="hidden md:block bg-white rounded-3xl border border-slate-200 shadow-xs overflow-hidden">
+            <div className="overflow-x-auto">
+              <table className="w-full text-left border-collapse">
+                <thead>
+                  <tr className="bg-slate-50/70 text-[11px] font-bold text-slate-500 uppercase tracking-wider border-b border-slate-200/80">
+                    <th className="px-6 py-3.5">Order ID</th>
+                    <th className="px-6 py-3.5">Hotel Name</th>
+                    <th className="px-6 py-3.5">Date</th>
+                    <th className="px-6 py-3.5">Items</th>
+                    <th className="px-6 py-3.5">Total Amount</th>
+                    <th className="px-6 py-3.5">Status</th>
+                    <th className="px-6 py-3.5 text-right">Actions</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-slate-100 text-sm">
+                  {filteredOrders.map((ord) => {
+                    const d = new Date(ord.created_at);
+                    const formattedDate = d.toLocaleDateString('en-GB', {
+                      day: '2-digit',
+                      month: 'short',
+                      year: 'numeric',
+                    });
+                    const formattedTime = d.toLocaleTimeString('en-US', {
+                      hour: 'numeric',
+                      minute: '2-digit',
+                      hour12: true,
+                    });
+
+                    return (
+                      <tr key={ord.id} className="hover:bg-slate-50/70 transition-colors">
+                        <td className="px-6 py-4 font-mono font-bold text-emerald-700">
+                          {ord.order_number}
+                        </td>
+
+                        <td className="px-6 py-4 font-bold text-slate-900">
+                          {ord.hotel_name}
+                        </td>
+
+                        <td className="px-6 py-4 text-xs text-slate-600">
+                          <span className="font-semibold block">{formattedDate}</span>
+                          <span className="text-slate-400">{formattedTime}</span>
+                        </td>
+
+                        <td className="px-6 py-4">
+                          <span className="px-2.5 py-1 text-xs font-bold rounded-lg bg-slate-100 text-slate-700">
+                            {ord.item_count} items
+                          </span>
+                        </td>
+
+                        <td className="px-6 py-4 font-extrabold text-slate-950">
+                          {formatCurrency(ord.total_amount)}
+                        </td>
+
+                        <td className="px-6 py-4">
+                          <span
+                            className={`px-2.5 py-1 text-xs font-bold rounded-full ${
+                              ord.status === 'New'
+                                ? 'bg-amber-100 text-amber-800'
+                                : ord.status === 'Processing'
+                                ? 'bg-sky-100 text-sky-800'
+                                : ord.status === 'Completed'
+                                ? 'bg-emerald-100 text-emerald-800'
+                                : 'bg-rose-100 text-rose-800'
+                            }`}
+                          >
+                            {ord.status}
+                          </span>
+                        </td>
+
+                        <td className="px-6 py-4 text-right">
+                          <div className="inline-flex items-center gap-1.5">
+                            <button
+                              onClick={() => handleViewOrder(ord.id)}
+                              disabled={selectedOrderLoading}
+                              className="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-xs font-bold text-slate-700 bg-slate-100 hover:bg-slate-200 transition-colors cursor-pointer"
+                              title="View Order Details"
+                            >
+                              <Eye className="w-3.5 h-3.5" />
+                              <span>View</span>
+                            </button>
+                            <button
+                              onClick={() => {
+                                setOrderToDelete(ord);
+                                setDeleteDialogOpen(true);
+                              }}
+                              className="inline-flex items-center justify-center p-1.5 rounded-lg text-xs font-bold text-rose-600 hover:bg-rose-50 border border-rose-200 transition-colors cursor-pointer"
+                              title="Delete Order"
+                            >
+                              <Trash2 className="w-3.5 h-3.5" />
+                            </button>
+                          </div>
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </>
+      )}
 
       {/* Order Detail Modal */}
       <OrderDetailModal
