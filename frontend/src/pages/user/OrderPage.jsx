@@ -92,55 +92,93 @@ export default function OrderPage() {
   }, [products, selectedCategoryId, searchQuery]);
 
   return (
-    <div className="min-h-screen bg-slate-50 flex flex-col selection:bg-emerald-500 selection:text-white pb-24 md:pb-12">
+    <div className="min-h-screen bg-mesh-slate flex flex-col selection:bg-emerald-500 selection:text-white pb-24 md:pb-12">
       {/* Public Storefront Header */}
       <Header onOpenHotelModal={() => setIsHotelModalOpen(true)} />
 
-      {/* Hero / Quick Search Bar */}
-      <div className="bg-white border-b border-slate-200/80 py-4 px-4 sm:px-6 lg:px-8 shadow-xs">
-        <div className="max-w-7xl mx-auto flex flex-col md:flex-row md:items-center justify-between gap-4">
-          <div className="relative flex-1 max-w-xl">
-            <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
-              <Search className="w-5 h-5" />
-            </div>
-            <input
-              type="text"
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder="Search products..."
-              className="w-full pl-10 pr-10 py-2.5 bg-slate-100/90 border border-slate-200 rounded-xl text-sm font-medium text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-600 focus:bg-white transition-all"
-            />
-            {searchQuery && (
-              <button
-                onClick={() => setSearchQuery('')}
-                className="absolute inset-y-0 right-0 pr-3 flex items-center text-slate-400 hover:text-slate-600 cursor-pointer"
-                aria-label="Clear search"
+      {/* ─── Hero Banner ─── */}
+      <div className="relative overflow-hidden bg-gradient-to-br from-slate-900 via-slate-800 to-emerald-950 text-white">
+        {/* Decorative circles */}
+        <div className="absolute -top-20 -right-20 w-72 h-72 rounded-full bg-emerald-500/8 blur-3xl" />
+        <div className="absolute -bottom-20 -left-20 w-80 h-80 rounded-full bg-teal-500/10 blur-3xl" />
+        <div className="absolute top-8 right-1/3 w-32 h-32 rounded-full bg-emerald-400/6 blur-2xl" />
+
+        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12">
+          {/* Value badges */}
+          <div className="flex flex-wrap items-center gap-2 mb-4">
+            {['Wholesale Pricing', 'WhatsApp Ordering', 'Fast Dispatch'].map((badge) => (
+              <span
+                key={badge}
+                className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-semibold bg-emerald-500/15 border border-emerald-500/25 text-emerald-300 tracking-wide"
               >
-                <X className="w-4 h-4" />
-              </button>
-            )}
+                <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 inline-block" />
+                {badge}
+              </span>
+            ))}
           </div>
 
-          <div className="flex items-center justify-between sm:justify-end gap-3 text-xs font-semibold text-slate-500 w-full md:w-auto">
-            <div className="flex items-center gap-2">
-              <span>Showing {filteredProducts.length} items</span>
+          {/* Headline */}
+          <h2 className="text-2xl sm:text-3xl lg:text-4xl font-black tracking-tight leading-tight max-w-2xl">
+            Hotel Packaging &amp;{' '}
+            <span
+              style={{
+                background: 'linear-gradient(135deg, #34d399 0%, #2dd4bf 50%, #38bdf8 100%)',
+                WebkitBackgroundClip: 'text',
+                WebkitTextFillColor: 'transparent',
+                backgroundClip: 'text'
+              }}
+            >
+              Daily Essentials
+            </span>{' '}
+            Made Simple
+          </h2>
+          <p className="mt-2 text-slate-400 text-sm font-medium max-w-lg">
+            Browse our curated selection of carry bags, sheets, foils, containers, cups and more — ordered directly through WhatsApp.
+          </p>
+
+          {/* Search bar */}
+          <div className="mt-6 max-w-xl flex items-center gap-3">
+            <div className="relative flex-1">
+              <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                <Search className="w-4.5 h-4.5 text-slate-400" />
+              </div>
+              <input
+                type="text"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                placeholder="Search carry bags, foils, containers…"
+                className="input-field w-full pl-11 pr-10 py-3 bg-white/10 backdrop-blur-sm border border-white/15 rounded-2xl text-sm font-medium text-white placeholder:text-slate-500 focus:bg-white/15 focus:border-emerald-400/50 focus:ring-0 transition-all"
+              />
               {searchQuery && (
-                <span className="text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-md border border-emerald-200">
-                  "{searchQuery}"
-                </span>
+                <button
+                  onClick={() => setSearchQuery('')}
+                  className="absolute inset-y-0 right-0 pr-4 flex items-center text-slate-400 hover:text-white cursor-pointer"
+                  aria-label="Clear search"
+                >
+                  <X className="w-4 h-4" />
+                </button>
               )}
             </div>
 
             <button
               onClick={() => fetchData(true)}
               disabled={refreshing}
-              title="Refresh Products"
-              className="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold transition-all active:scale-95 cursor-pointer disabled:opacity-50"
+              title="Sync latest products"
+              className="flex-shrink-0 p-3 rounded-2xl bg-white/10 border border-white/15 hover:bg-white/20 text-slate-300 hover:text-white transition-all btn-press disabled:opacity-50 cursor-pointer"
             >
-              <RefreshCw className={`w-3.5 h-3.5 ${refreshing ? 'animate-spin text-emerald-600' : 'text-slate-500'}`} />
-              <span className="hidden xs:inline">Sync</span>
+              <RefreshCw className={`w-4.5 h-4.5 ${refreshing ? 'animate-spin text-emerald-400' : ''}`} />
             </button>
           </div>
+
+          {/* Live item count */}
+          {!loading && (
+            <p className="mt-3 text-xs text-slate-500 font-medium">
+              Showing <span className="text-emerald-400 font-bold">{filteredProducts.length}</span> of {products.length} products
+              {searchQuery && (
+                <span className="ml-1.5 text-slate-400">for &ldquo;<span className="text-slate-300">{searchQuery}</span>&rdquo;</span>
+              )}
+            </p>
+          )}
         </div>
       </div>
 
@@ -190,34 +228,35 @@ export default function OrderPage() {
         )}
       </main>
 
-      {/* Floating Bottom Cart Bar for Mobile */}
+      {/* ─── Floating Mobile Cart Bar ─── */}
       {totalCount > 0 && (
-        <div className="sm:hidden fixed bottom-4 inset-x-4 z-40 animate-in slide-in-from-bottom duration-300">
+        <div className="sm:hidden fixed bottom-4 inset-x-4 z-40 animate-slide-up">
           <button
             onClick={() => setIsCartOpen(true)}
-            className="w-full flex items-center justify-between p-4 bg-emerald-600 text-white rounded-2xl shadow-xl shadow-emerald-950/20 active:scale-[0.99] transition-transform cursor-pointer"
+            className="w-full flex items-center justify-between px-4 py-3.5 rounded-2xl shadow-2xl shadow-emerald-950/30 active:scale-[0.99] transition-transform cursor-pointer btn-press"
+            style={{ background: 'linear-gradient(135deg, #059669 0%, #0d9488 100%)' }}
           >
             <div className="flex items-center gap-3">
-              <div className="w-9 h-9 rounded-xl bg-emerald-700/80 flex items-center justify-center">
-                <ShoppingBag className="w-5 h-5" />
+              <div className="w-9 h-9 rounded-xl bg-white/15 flex items-center justify-center">
+                <ShoppingBag className="w-5 h-5 text-white" />
               </div>
               <div className="text-left">
-                <div className="font-extrabold text-sm">
-                  {totalCount} {totalCount === 1 ? 'item' : 'items'} in Cart
+                <div className="font-extrabold text-sm text-white">
+                  {totalCount} {totalCount === 1 ? 'item' : 'items'}
                 </div>
-                <div className="text-xs text-emerald-100 font-medium">
+                <div className="text-[11px] text-emerald-100/80 font-medium truncate max-w-[160px]">
                   {hotelName}
                 </div>
               </div>
             </div>
 
-            <div className="flex items-center gap-2">
-              <span className="text-lg font-extrabold">
+            <div className="flex items-center gap-2.5">
+              <span className="text-lg font-black text-white">
                 {formatCurrency(totalAmount)}
               </span>
-              <span className="text-xs font-bold uppercase bg-white/20 px-2 py-1 rounded-lg">
-                View →
-              </span>
+              <div className="bg-white/20 text-white text-xs font-bold px-2.5 py-1 rounded-xl">
+                View
+              </div>
             </div>
           </button>
         </div>
