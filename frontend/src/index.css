@@ -10,9 +10,9 @@
     --font-ui: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
     --font-mono: 'JetBrains Mono', 'Fira Code', monospace;
 
-    --color-brand: #059669;
+    --color-brand: #10b981;
     --color-brand-dark: #047857;
-    --color-brand-light: #ecfdf5;
+    --color-brand-light: #d1fae5;
   }
 
   html {
@@ -23,7 +23,7 @@
     margin: 0;
     padding: 0;
     font-family: var(--font-sans);
-    color: #0f172a;
+    color: var(--color-brand);
     background-color: #f8fafc;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
